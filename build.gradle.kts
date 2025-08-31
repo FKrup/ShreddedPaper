@@ -63,16 +63,16 @@ paperweight {
     remapRepo.set("https://repo.papermc.io/repository/maven-public/")
     decompileRepo.set("https://repo.papermc.io/repository/maven-public/")
 
-    useStandardUpstream("Purpur") {
-        url.set(github("PurpurMC", "Purpur"))
-        ref.set(providers.gradleProperty("purpurRef"))
+    useStandardUpstream("Paper") {
+        url.set(github("PaperMC", "Paper-Archive"))
+        ref.set(providers.gradleProperty("paperRef"))
         
         withStandardPatcher {
-            apiSourceDirPath.set("Purpur-API") 
+            apiSourceDirPath.set("paper-api") 
             apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
             apiOutputDir.set(layout.projectDirectory.dir("shreddedpaper-api"))
 
-            serverSourceDirPath.set("Purpur-Server")
+            serverSourceDirPath.set("paper-server")
             serverPatchDir.set(layout.projectDirectory.dir("patches/server"))
             serverOutputDir.set(layout.projectDirectory.dir("shreddedpaper-server"))
         }
@@ -85,9 +85,9 @@ paperweight {
         }
     }
 
-    tasks.register("purpurRefLatest") {
+    tasks.register("paperRefLatest") {
         // Update the paperRef in gradle.properties to be the latest commit
-        val tempDir = layout.cacheDir("purpurRefLatest");
+        val tempDir = layout.cacheDir("paperRefLatest");
         val file = "gradle.properties";
         
         doFirst {
@@ -95,15 +95,15 @@ paperweight {
                     val sha: String
             )
 
-            val purpurLatestCommitJson = layout.cache.resolve("purpurLatestCommit.json");
-            download.get().download("https://api.github.com/repos/PurpurMC/Purpur/commits/ver/1.20.6", purpurLatestCommitJson);
-            val purpurLatestCommit = gson.fromJson<paper.libs.com.google.gson.JsonObject>(purpurLatestCommitJson)["sha"].asString;
+            val paperLatestCommitJson = layout.cache.resolve("paperLatestCommit.json");
+            download.get().download("https://api.github.com/repos/PaperMC/Paper-Archive/commits/1.20.6", paperLatestCommitJson);
+            val paperLatestCommit = gson.fromJson<paper.libs.com.google.gson.JsonObject>(paperLatestCommitJson)["sha"].asString;
 
             copy {
                 from(file)
                 into(tempDir)
                 filter { line: String ->
-                    line.replace("purpurRef = .*".toRegex(), "purpurRef = $purpurLatestCommit")
+                    line.replace("paperRef = .*".toRegex(), "paperRef = $paperLatestCommit")
                 }
             }
         }
